@@ -1333,6 +1333,24 @@ function showToast(msg,type=''){
 
 // ========== START ==========
 init();
+</script><!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "njg-controle-de-carregamento.firebaseapp.com",
+    projectId: "njg-controle-de-carregamento",
+    storageBucket: "njg-controle-de-carregamento.appspot.com",
+    messagingSenderId: "753611983634",
+    appId: "SEU_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  console.log("Firebase conectado com sucesso!");
 </script>
 </body>
 </html>
