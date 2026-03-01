@@ -307,6 +307,8 @@ textarea.fctl{resize:vertical;min-height:56px;}
 </style>
 </head>
 <body>
+  <button id="btnLogin" onclick="loginGoogle()">Entrar com Google</button>
+<button id="btnLogout" onclick="logout()" style="display:none;">Sair</button>
 
 <div class="tcontainer" id="tc"></div>
 
@@ -1337,6 +1339,8 @@ init();
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "SUA_API_KEY",
@@ -1349,8 +1353,26 @@ init();
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
   console.log("Firebase conectado com sucesso!");
+  window.loginGoogle = async () => {
+  await signInWithPopup(auth, provider);
+};
+
+window.logout = async () => {
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("btnLogin").style.display = "none";
+    document.getElementById("btnLogout").style.display = "inline-block";
+  } else {
+    document.getElementById("btnLogin").style.display = "inline-block";
+    document.getElementById("btnLogout").style.display = "none";
+  }
+});
 </script>
 </body>
 </html>
