@@ -751,9 +751,9 @@ function loadStorage() {
     const s = localStorage.getItem(LS_KEY);
     if (!s) return false;
     const {added, deleted, ts} = JSON.parse(s);
-    let data = BASE_DATA.map((r,i) => ({
+   let data = BASE_DATA.map((r) => ({
   ...r,
-  _id: r._id !== undefined ? r._id : i
+  _id: r._id ?? `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
 }));
     if (deleted && deleted.length) data = data.filter(r => !deleted.includes(r._id));
     if (added && added.length) {
