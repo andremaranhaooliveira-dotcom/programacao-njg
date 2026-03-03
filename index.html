@@ -802,7 +802,9 @@ function exportarMeusLancamentos() {
 function init() {
   const baseWithIds = BASE_DATA.map((r,i) => ({...r, _id: i}));
   if (!loadStorage()) LIVE_DATA = baseWithIds;
-  else LIVE_DATA = LIVE_DATA.map((r,i) => r._id !== undefined ? r : {...r, _id: Date.now()+i});
+  if (!loadStorage()) {
+  LIVE_DATA = baseWithIds;
+}
   
   if (localStorage.getItem(LS_COLLAB)) ativarModoColaborador();
   
