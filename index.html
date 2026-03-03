@@ -804,18 +804,24 @@ function exportarMeusLancamentos() {
 // ========== INIT ==========
 function init() {
   const baseWithIds = BASE_DATA.map((r,i) => ({
-  ...r,
-  _id: r._id !== undefined ? r._id : i
-}));
-  if (!loadStorage()) LIVE_DATA = baseWithIds;
-  if (!loadStorage()) {
-  LIVE_DATA = baseWithIds;
-}
-  
+    ...r,
+    _id: r._id !== undefined ? r._id : i
+  }));
+
+  const loaded = loadStorage();
+
+  if (!loaded) {
+    LIVE_DATA = baseWithIds;
+  }
+
   if (localStorage.getItem(LS_COLLAB)) ativarModoColaborador();
-  
-  populateFilters(); populateAC(); populateDateList();
-  buildDatePills(); applyFilters(); updateHdrStats();
+
+  populateFilters();
+  populateAC();
+  populateDateList();
+  buildDatePills();
+  applyFilters();
+  updateHdrStats();
   setTodayDefault();
 }
 function setTodayDefault() {
