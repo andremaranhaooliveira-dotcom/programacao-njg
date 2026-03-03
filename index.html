@@ -802,11 +802,10 @@ function exportarMeusLancamentos() {
 }
 
 // ========== INIT ==========
-function init() {
-  const baseWithIds = BASE_DATA.map((r,i) => ({
-    ...r,
-    _id: r._id !== undefined ? r._id : i
-  }));
+const baseWithIds = BASE_DATA.map((r,i) => ({
+  ...r,
+  _id: r._id !== undefined ? r._id : i
+}));
 
   const loaded = loadStorage();
 
