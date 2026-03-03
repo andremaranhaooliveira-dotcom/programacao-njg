@@ -1204,7 +1204,7 @@ function confDel(idx){
   document.getElementById('m-del').classList.remove('hidden');closeM('m-det');
 }
 function execDel(){if(pendingDelIdx===null)return;
-  DADOS_AO_VOCÊ[pendingDelIdx]._deleted = true;saveStorage();populateFilters();buildDatePills();
+  LIVE_DATA[pendingDelIdx]._deleted = true;saveStorage();populateFilters();buildDatePills();
   applyFilters();updateHdrStats();closeM('m-del');pendingDelIdx=null;showToast('🗑️ Registro excluído','warn');}
 
 // ========== IMPORT EXCEL ==========
