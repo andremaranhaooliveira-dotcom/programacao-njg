@@ -803,9 +803,9 @@ function exportarMeusLancamentos() {
 
 // ========== INIT ==========
 function init() {
-  const baseWithIds = BASE_DATA.map((r,i) => ({
+  const baseWithIds = BASE_DATA.map((r) => ({
   ...r,
-  _id: r._id !== undefined ? r._id : i
+  _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
 }));
   if (!loadStorage()) LIVE_DATA = baseWithIds;
   if (!loadStorage()) {
