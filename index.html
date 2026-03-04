@@ -804,18 +804,24 @@ function exportarMeusLancamentos() {
 // ========== INIT ==========
 function init() {
   const baseWithIds = BASE_DATA.map((r) => ({
-  ...r,
-  _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
-}));
-  if (!loadStorage()) LIVE_DATA = baseWithIds;
-  if (!loadStorage()) {
-  LIVE_DATA = baseWithIds;
-}
-  
+    ...r,
+    _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
+  }));
+
+  const loaded = loadStorage();   // chama UMA vez só
+
+  if (!loaded) {
+    LIVE_DATA = baseWithIds;
+  }
+
   if (localStorage.getItem(LS_COLLAB)) ativarModoColaborador();
-  
-  populateFilters(); populateAC(); populateDateList();
-  buildDatePills(); applyFilters(); updateHdrStats();
+
+  populateFilters();
+  populateAC();
+  populateDateList();
+  buildDatePills();
+  applyFilters();
+  updateHdrStats();
   setTodayDefault();
 }
 function setTodayDefault() {
