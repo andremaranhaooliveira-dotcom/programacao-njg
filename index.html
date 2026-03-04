@@ -1211,10 +1211,26 @@ function confDel(idx){
   document.getElementById('del-confirm-btn').onclick=execDel;
   document.getElementById('m-del').classList.remove('hidden');closeM('m-det');
 }
-function execDel(){if(pendingDelIdx===null)return;
-  LIVE_DATA[pendingDelIdx]._deleted = true;saveStorage();populateFilters();buildDatePills();
-  applyFilters();updateHdrStats();closeM('m-del');pendingDelIdx=null;showToast('🗑️ Registro excluído','warn');}
+function execDel(){
+  if(pendingDelIdx === null) return;
 
+  const registro = LIVE_DATA[pendingDelIdx];
+
+  if (!registro) return;
+
+  registro._deleted = true;
+
+  saveStorage();
+
+  populateFilters();
+  buildDatePills();
+  applyFilters();
+  updateHdrStats();
+  closeM('m-del');
+  pendingDelIdx = null;
+
+  showToast('🗑️ Registro excluído','warn');
+}
 // ========== IMPORT EXCEL ==========
 function openImport(){pendingImport=null;
   document.getElementById('ipreview').classList.add('hidden');
