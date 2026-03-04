@@ -751,9 +751,9 @@ function loadStorage() {
     const s = localStorage.getItem(LS_KEY);
     if (!s) return false;
     const {added, deleted, ts} = JSON.parse(s);
-   let data = BASE_DATA.map((r) => ({
+    let data = BASE_DATA.map((r,i) => ({
   ...r,
-  _id: r._id ?? `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
+  _id: r._id !== undefined ? r._id : i
 }));
     if (deleted && deleted.length) data = data.filter(r => !deleted.includes(r._id));
     if (added && added.length) {
@@ -804,24 +804,18 @@ function exportarMeusLancamentos() {
 // ========== INIT ==========
 function init() {
   const baseWithIds = BASE_DATA.map((r,i) => ({
-    ...r,
-    _id: r._id !== undefined ? r._id : i
-  }));
-
-  const loaded = loadStorage();
-
-  if (!loaded) {
-    LIVE_DATA = baseWithIds;
-  }
-
+  ...r,
+  _id: r._id !== undefined ? r._id : i
+}));
+  if (!loadStorage()) LIVE_DATA = baseWithIds;
+  if (!loadStorage()) {
+  LIVE_DATA = baseWithIds;
+}
+  
   if (localStorage.getItem(LS_COLLAB)) ativarModoColaborador();
-
-  populateFilters();
-  populateAC();
-  populateDateList();
-  buildDatePills();
-  applyFilters();
-  updateHdrStats();
+  
+  populateFilters(); populateAC(); populateDateList();
+  buildDatePills(); applyFilters(); updateHdrStats();
   setTodayDefault();
 }
 function setTodayDefault() {
