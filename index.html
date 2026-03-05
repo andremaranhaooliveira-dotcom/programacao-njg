@@ -1223,13 +1223,13 @@ function confDel(idx){
   document.getElementById('m-del').classList.remove('hidden');closeM('m-det');
 }
 function execDel(){
-  if(pendingDelIdx === null) return;
+  if (pendingDelIdx === null) return;
 
   const registro = LIVE_DATA[pendingDelIdx];
-
   if (!registro) return;
 
-  registro._deleted = true;
+  // remove diretamente da lista
+  LIVE_DATA.splice(pendingDelIdx, 1);
 
   saveStorage();
 
@@ -1237,6 +1237,7 @@ function execDel(){
   buildDatePills();
   applyFilters();
   updateHdrStats();
+
   closeM('m-del');
   pendingDelIdx = null;
 
