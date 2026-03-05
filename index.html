@@ -1229,12 +1229,15 @@ function confDel(idx){
   document.getElementById('m-del').classList.remove('hidden');closeM('m-det');
 }
 function execDel(){
-  if (pendingDelIdx === null) return;
+  if(pendingDelIdx === null) return;
 
   const registro = LIVE_DATA[pendingDelIdx];
   if (!registro) return;
 
-  // remove diretamente da lista
+  // salvar id para storage
+  registro._deleted = true;
+
+  // remover da lista ativa
   LIVE_DATA.splice(pendingDelIdx, 1);
 
   saveStorage();
@@ -1245,6 +1248,7 @@ function execDel(){
   updateHdrStats();
 
   closeM('m-del');
+
   pendingDelIdx = null;
 
   showToast('🗑️ Registro excluído','warn');
