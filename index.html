@@ -744,40 +744,46 @@ function loadStorage() {
     const s = localStorage.getItem(LS_KEY);
     if (!s) return false;
 
-    LIVE_DATA = JSON.parse(s);
+    const {added, deleted, ts} = JSON.parse(s);
 
-    showUpdBadge('ATUALIZADO ' + new Date().toLocaleDateString('pt-BR'));
+    let data = BASE_DATA.map((r) => ({
+      ...r,
+      _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
+    }));
+
+    // remover deletados
+    if (deleted && deleted.length) {
+      data = data.filter(r => !deleted.includes(r._id));
+    }
+
+    // adicionar ou atualizar registros
+    if (added && added.length) {
+      added.forEach(a => {
+        const idx = data.findIndex(r => r._id === a._id);
+        if (idx >= 0) data[idx] = a;
+        else data.push(a);
+      });
+    }
+
+    LIVE_DATA = data;
+
+    if (ts) {
+      const dt = new Date(ts);
+      showUpdBadge('ATUALIZADO ' + dt.toLocaleDateString('pt-BR'));
+    }
+
     return true;
 
   } catch(e) { 
     return false; 
   }
 }
-function loadStorage() {
-  try {
-    const s = localStorage.getItem(LS_KEY);
-    if (!s) return false;
-    const {added, deleted, ts} = JSON.parse(s);
-    let data = BASE_DATA.map((r) => ({
-  ...r,
-  _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
-}));
-    if (deleted && deleted.length) data = data.filter(r => !deleted.includes(r._id));
-    if (added && added.length) {
-      added.forEach(a => {
-        const idx = data.findIndex(r => r._id === a._id);
-        if (idx >= 0) data[idx] = a; else data.push(a);
-      });
-    }
-    LIVE_DATA = data;
-    const dt = new Date(ts);
-    showUpdBadge('ATUALIZADO ' + dt.toLocaleDateString('pt-BR'));
-    return true;
-  } catch(e) { return false; }
-}
+
 function showUpdBadge(txt) {
   const b = document.getElementById('upd-badge');
-  b.style.display = ''; b.textContent = txt;
+  if (!b) return;
+  b.style.display = '';
+  b.textContent = txt;
 }
 
 // ========== COLLAB MODE ==========
