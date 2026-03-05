@@ -739,12 +739,19 @@ function dateInRange(d, ini, fim) {
 }
 
 // ========== STORAGE ==========
-function saveStorage() {
+function loadStorage() {
   try {
-    const added = LIVE_DATA.filter(r => r._new || r._edited);
-    const deleted = LIVE_DATA.filter(r => r._deleted).map(r => r._id);
-    localStorage.setItem(LS_KEY, JSON.stringify({added, deleted, ts: Date.now()}));
-  } catch(e) {}
+    const s = localStorage.getItem(LS_KEY);
+    if (!s) return false;
+
+    LIVE_DATA = JSON.parse(s);
+
+    showUpdBadge('ATUALIZADO ' + new Date().toLocaleDateString('pt-BR'));
+    return true;
+
+  } catch(e) { 
+    return false; 
+  }
 }
 function loadStorage() {
   try {
