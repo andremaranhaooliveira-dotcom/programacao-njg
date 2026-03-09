@@ -1222,26 +1222,23 @@ function showDet(idx){
 }
 
 // ========== DELETE ==========
-function confDel(idx){
-  const r=LIVE_DATA[idx];pendingDelIdx=idx;
-  document.getElementById('del-info').innerHTML=`<b>${esc(r.transportadora)||'—'}</b> — ${esc(r.data)}<br>Rota: ${esc(r.origem_destino)||'—'} | Motorista: ${esc(r.motorista)||'—'}`;
-  document.getElementById('del-confirm-btn').onclick=execDel;
-  document.getElementById('m-del').classList.remove('hidden');closeM('m-det');
-}
 function execDel(){
+
   if(pendingDelIdx === null) return;
 
   const registro = LIVE_DATA[pendingDelIdx];
-  if (!registro) return;
+  if(!registro) return;
 
-  // salvar id para storage
+  // marcar como deletado
   registro._deleted = true;
 
   // remover da lista ativa
-  LIVE_DATA.splice(pendingDelIdx, 1);
+  LIVE_DATA = LIVE_DATA.filter(r => !r._deleted);
 
+  // salvar no localStorage
   saveStorage();
 
+  // atualizar tela
   populateFilters();
   buildDatePills();
   applyFilters();
@@ -1253,7 +1250,7 @@ function execDel(){
 
   showToast('🗑️ Registro excluído','warn');
 }
-// ========== IMPORT EXCEL ==========
+  // ========== IMPORT EXCEL ==========
 function openImport(){pendingImport=null;
   document.getElementById('ipreview').classList.add('hidden');
   document.getElementById('imode-sec').classList.add('hidden');
