@@ -135,20 +135,22 @@ Total Registros
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore,collection,addDoc,getDocs,deleteDoc,doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "COLE_AQUI",
-authDomain: "COLE_AQUI",
-projectId: "COLE_AQUI",
-storageBucket: "COLE_AQUI",
-messagingSenderId: "COLE_AQUI",
-appId: "COLE_AQUI"
+  apiKey: "AIzaSyAd4yEQwsQ2ps8oRv4Ng97F1xu1Sc-mnC8",
+  authDomain: "njg-controle-de-carregamento.firebaseapp.com",
+  projectId: "njg-controle-de-carregamento",
+  storageBucket: "njg-controle-de-carregamento.firebasestorage.app",
+  messagingSenderId: "753611983634",
+  appId: "1:753611983634:web:71b5793a63599a2b7e01cb",
+  measurementId: "G-JWDW47YE74"
 };
 
 const app = initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 async function carregar(){
 
