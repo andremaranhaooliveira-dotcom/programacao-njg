@@ -1,130 +1,117 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TMS NJG 4.0</title>
+<title>TMS NJG 5.0</title>
 
 <style>
-:root{
-  --azul:#1c3d6b;
-  --verde:#28a745;
-  --vermelho:#dc3545;
-  --cinza:#f1f4f8;
-}
 
 body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--cinza);
+font-family:Arial;
+margin:0;
+background:#eef2f7;
 }
 
 header{
-  background:#111;
-  color:white;
-  display:flex;
-  align-items:center;
-  gap:20px;
-  padding:15px 25px;
+background:#111;
+color:white;
+display:flex;
+align-items:center;
+padding:15px;
+gap:20px;
 }
 
 header img{
-  height:65px;
+height:60px;
 }
 
 header h1{
-  font-size:22px;
+font-size:22px;
 }
 
 .container{
-  padding:20px 30px;
+padding:20px;
 }
 
 .cards{
-  display:flex;
-  gap:15px;
-  margin-bottom:20px;
+display:flex;
+gap:15px;
+margin-bottom:20px;
 }
 
 .card{
-  background:white;
-  padding:15px;
-  border-radius:10px;
-  flex:1;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+background:white;
+padding:15px;
+flex:1;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.15);
 }
 
 .card h3{
-  margin:0;
-  font-size:14px;
-  color:#666;
+margin:0;
+font-size:14px;
+color:#555;
 }
 
 .card p{
-  margin:5px 0 0 0;
-  font-size:28px;
-  font-weight:bold;
+font-size:26px;
+margin-top:5px;
+font-weight:bold;
 }
 
 .form{
-  background:white;
-  padding:15px;
-  border-radius:10px;
-  margin-bottom:20px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
-}
-
-.form h3{
-  margin-top:0;
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
 }
 
 .form input{
-  padding:6px;
-  margin:4px;
-  border:1px solid #ccc;
-  border-radius:6px;
+padding:6px;
+margin:4px;
+border-radius:6px;
+border:1px solid #ccc;
 }
 
 button{
-  padding:7px 12px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
+padding:7px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
-.btnAdd{background:var(--verde);color:white}
-.btnDel{background:var(--vermelho);color:white}
+.btnAdd{background:#28a745;color:white}
 .btnEdit{background:#007bff;color:white}
-.btnExport{background:#444;color:white}
+.btnDel{background:#dc3545;color:white}
+.btnExport{background:#333;color:white}
 
 .toolbar{
-  margin-bottom:10px;
+margin-bottom:10px;
 }
 
 .toolbar input{
-  padding:6px;
-  margin-right:5px;
+padding:6px;
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  background:white;
-  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+width:100%;
+border-collapse:collapse;
+background:white;
 }
 
 th{
-  background:var(--azul);
-  color:white;
-  padding:8px;
-  font-size:13px;
+background:#1c3d6b;
+color:white;
+padding:8px;
+font-size:13px;
 }
 
 td{
-  padding:7px;
-  border:1px solid #ddd;
-  font-size:13px;
-  text-align:center;
+border:1px solid #ddd;
+padding:6px;
+font-size:13px;
+text-align:center;
 }
 
 </style>
@@ -133,8 +120,11 @@ td{
 <body>
 
 <header>
+
 <img src="logo.png">
-<h1>TMS NJG 4.0 • Gestão Operacional de Transportes</h1>
+
+<h1>TMS NJG 5.0 • Gestão de Transportes</h1>
+
 </header>
 
 <div class="container">
@@ -142,8 +132,13 @@ td{
 <div class="cards">
 
 <div class="card">
-<h3>Total de Cargas</h3>
-<p id="totalCargas">0</p>
+<h3>Total Cargas</h3>
+<p id="total">0</p>
+</div>
+
+<div class="card">
+<h3>Frete Total</h3>
+<p id="freteTotal">0</p>
 </div>
 
 <div class="card">
@@ -179,15 +174,7 @@ td{
 
 <div class="toolbar">
 
-<input id="busca" placeholder="Buscar motorista / placa / transportadora" onkeyup="render()">
-
-<input id="filtroData" type="date" onchange="render()">
-
-<select id="filtroStatus" onchange="render()">
-<option value="">Todos</option>
-<option>OK</option>
-<option>PENDENTE</option>
-</select>
+<input id="busca" placeholder="Buscar..." onkeyup="render()">
 
 <button class="btnExport" onclick="exportar()">Exportar Excel</button>
 
@@ -221,7 +208,7 @@ td{
 
 <script>
 
-const KEY="TMS_NJG_4"
+const KEY="TMS_NJG"
 
 let dados=[]
 
@@ -242,7 +229,9 @@ localStorage.setItem(KEY,JSON.stringify(dados))
 function salvar(){
 
 const r={
+
 id:Date.now(),
+
 data:data.value,
 transportadora:transportadora.value,
 origem:origem.value,
@@ -250,9 +239,10 @@ destino:destino.value,
 cavalo:cavalo.value,
 carreta:carreta.value,
 motorista:motorista.value,
-frete:frete.value,
+frete:Number(frete.value),
 peso:peso.value,
 status:status.value
+
 }
 
 dados.push(r)
@@ -277,9 +267,9 @@ render()
 
 function render(){
 
-let lista=[...dados]
-
 const busca=document.getElementById("busca").value.toLowerCase()
+
+let lista=[...dados]
 
 if(busca){
 
@@ -293,29 +283,16 @@ lista=lista.filter(r=>
 
 }
 
-const filtroData=document.getElementById("filtroData").value
-
-if(filtroData){
-
-lista=lista.filter(r=>r.data===filtroData)
-
-}
-
-const filtroStatus=document.getElementById("filtroStatus").value
-
-if(filtroStatus){
-
-lista=lista.filter(r=>r.status===filtroStatus)
-
-}
-
 const tb=document.getElementById("tabela")
 
 tb.innerHTML=""
 
+let totalFrete=0
 let ok=0
 
 lista.forEach(r=>{
+
+totalFrete+=r.frete||0
 
 if(r.status=="OK") ok++
 
@@ -337,13 +314,15 @@ tr.innerHTML=`
 <td>
 <button class="btnDel" onclick="excluir(${r.id})">Excluir</button>
 </td>
+
 `
 
 tb.appendChild(tr)
 
 })
 
-document.getElementById("totalCargas").innerText=dados.length
+document.getElementById("total").innerText=dados.length
+document.getElementById("freteTotal").innerText=totalFrete
 document.getElementById("ok").innerText=ok
 document.getElementById("pend").innerText=dados.length-ok
 
