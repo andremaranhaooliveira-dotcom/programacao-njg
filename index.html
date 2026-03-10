@@ -1,30 +1,31 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>TMS NJG 7.0</title>
+<title>TMS NJG Online</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
 
 <style>
 
 body{
+font-family:Segoe UI;
 margin:0;
-font-family:Segoe UI,Arial;
 background:#eef2f7;
 }
-
-/* TOPO */
 
 .topbar{
 background:#2f4466;
 color:white;
+padding:12px 20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:12px 25px;
 }
 
 .logo{
@@ -39,59 +40,14 @@ font-weight:600;
 height:40px;
 }
 
-.actions button{
-margin-right:10px;
+button{
 padding:8px 14px;
 border:none;
 border-radius:6px;
 cursor:pointer;
-font-weight:600;
 }
 
-.btnGreen{background:#2ecc71;color:white}
-.btnOrange{background:#f39c12;color:white}
-.btnGray{background:#5d6d7e;color:white}
-
-/* FILTROS */
-
-.filters{
-background:white;
-padding:12px 20px;
-display:flex;
-gap:10px;
-border-bottom:1px solid #ddd;
-}
-
-.filters input,
-.filters select{
-padding:7px;
-border:1px solid #ccc;
-border-radius:6px;
-}
-
-/* TABS */
-
-.tabs{
-display:flex;
-gap:20px;
-padding:10px 20px;
-background:white;
-border-bottom:1px solid #ddd;
-}
-
-.tab{
-font-weight:600;
-color:#777;
-cursor:pointer;
-}
-
-.tab.active{
-color:#ff6b00;
-border-bottom:3px solid #ff6b00;
-padding-bottom:5px;
-}
-
-/* CARDS */
+.btnNovo{background:#2ecc71;color:white}
 
 .cards{
 display:flex;
@@ -100,26 +56,12 @@ padding:20px;
 }
 
 .card{
-flex:1;
 background:white;
 padding:15px;
+flex:1;
 border-radius:10px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
-
-.card h2{
-margin:0;
-font-size:26px;
-}
-
-.total{border-left:6px solid #ff6b00}
-.on{border-left:6px solid #3498db}
-.off{border-left:6px solid #8e44ad}
-.frog{border-left:6px solid #27ae60}
-.final{border-left:6px solid #2ecc71}
-.na{border-left:6px solid #e74c3c}
-
-/* TABELA */
 
 .tableArea{
 padding:20px;
@@ -134,32 +76,18 @@ background:white;
 th{
 background:#f4f6f9;
 padding:10px;
-font-size:13px;
-border-bottom:2px solid #ddd;
 }
 
 td{
-padding:9px;
+padding:8px;
 border-bottom:1px solid #eee;
-font-size:13px;
 }
-
-.status{
-padding:4px 8px;
-border-radius:10px;
-font-size:12px;
-font-weight:600;
-}
-
-.ok{background:#c8f7c5;color:#1e8449}
 
 </style>
 
 </head>
 
 <body>
-
-<!-- TOPO -->
 
 <div class="topbar">
 
@@ -168,80 +96,18 @@ font-weight:600;
 TMS NJG
 </div>
 
-<div class="actions">
-
-<button class="btnGreen" onclick="novo()">+ Novo Lançamento</button>
-<button class="btnOrange" onclick="importar()">Importar Excel</button>
-<button class="btnGray" onclick="exportar()">Exportar CSV</button>
+<button class="btnNovo" onclick="novo()">Novo Lançamento</button>
 
 </div>
-
-</div>
-
-<!-- FILTROS -->
-
-<div class="filters">
-
-<input id="busca" placeholder="Transportadora, motorista, placa..." onkeyup="render()">
-
-<select id="statusFiltro" onchange="render()">
-<option value="">Status</option>
-<option>ON</option>
-<option>OFF</option>
-<option>FROG</option>
-<option>FINALIZADO</option>
-</select>
-
-</div>
-
-<!-- TABS -->
-
-<div class="tabs">
-
-<div class="tab active">Tabela</div>
-<div class="tab">Cards</div>
-<div class="tab">Dashboard</div>
-<div class="tab">Por Dia</div>
-
-</div>
-
-<!-- CARDS -->
 
 <div class="cards">
 
-<div class="card total">
+<div class="card">
 <h2 id="total">0</h2>
 Total Registros
 </div>
 
-<div class="card on">
-<h2 id="on">0</h2>
-CARG ON
 </div>
-
-<div class="card off">
-<h2 id="off">0</h2>
-CARG OFF
-</div>
-
-<div class="card frog">
-<h2 id="frog">0</h2>
-FROG
-</div>
-
-<div class="card final">
-<h2 id="final">0</h2>
-Finalizados
-</div>
-
-<div class="card na">
-<h2 id="na">0</h2>
-Não Atendidos
-</div>
-
-</div>
-
-<!-- TABELA -->
 
 <div class="tableArea">
 
@@ -251,17 +117,10 @@ Não Atendidos
 
 <tr>
 <th>DATA</th>
-<th>SEÇÃO</th>
 <th>TRANSPORTADORA</th>
 <th>ROTA</th>
-<th>CAVALO</th>
-<th>CARRETA</th>
-<th>EIXOS</th>
 <th>MOTORISTA</th>
-<th>PESO</th>
 <th>STATUS</th>
-<th>TEL</th>
-<th>OCORRÊNCIAS</th>
 <th>AÇÕES</th>
 </tr>
 
@@ -273,161 +132,97 @@ Não Atendidos
 
 </div>
 
-<script>
+<script type="module">
 
-const KEY="TMS_NJG"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore,collection,addDoc,getDocs,deleteDoc,doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-let registros=[]
+const firebaseConfig = {
+apiKey: "COLE_AQUI",
+authDomain: "COLE_AQUI",
+projectId: "COLE_AQUI",
+storageBucket: "COLE_AQUI",
+messagingSenderId: "COLE_AQUI",
+appId: "COLE_AQUI"
+};
 
-function carregar(){
+const app = initializeApp(firebaseConfig);
 
-const s=localStorage.getItem(KEY)
+const db = getFirestore(app);
 
-if(s) registros=JSON.parse(s)
+async function carregar(){
 
-}
+const querySnapshot = await getDocs(collection(db,"cargas"))
 
-function salvar(){
+const tabela=document.getElementById("tabela")
 
-localStorage.setItem(KEY,JSON.stringify(registros))
+tabela.innerHTML=""
 
-}
+let total=0
 
-function novo(){
+querySnapshot.forEach((docu)=>{
 
-const data=prompt("DATA")
-const transportadora=prompt("TRANSPORTADORA")
-const rota=prompt("ROTA")
-const motorista=prompt("MOTORISTA")
-const status=prompt("STATUS (ON/OFF/FROG/FINALIZADO)")
-
-const r={
-id:Date.now(),
-data,
-transportadora,
-rota,
-motorista,
-status
-}
-
-registros.push(r)
-
-salvar()
-
-render()
-
-}
-
-function excluir(id){
-
-if(!confirm("Excluir registro?")) return
-
-registros=registros.filter(r=>r.id!==id)
-
-salvar()
-
-render()
-
-}
-
-function render(){
-
-const busca=document.getElementById("busca").value.toLowerCase()
-
-const filtro=document.getElementById("statusFiltro").value
-
-let lista=[...registros]
-
-if(busca){
-
-lista=lista.filter(r=>
-
-(r.transportadora||"").toLowerCase().includes(busca) ||
-(r.motorista||"").toLowerCase().includes(busca)
-
-)
-
-}
-
-if(filtro){
-
-lista=lista.filter(r=>r.status===filtro)
-
-}
-
-const tb=document.getElementById("tabela")
-
-tb.innerHTML=""
-
-let on=0,off=0,frog=0,final=0
-
-lista.forEach(r=>{
-
-if(r.status==="ON") on++
-if(r.status==="OFF") off++
-if(r.status==="FROG") frog++
-if(r.status==="FINALIZADO") final++
+const r=docu.data()
 
 const tr=document.createElement("tr")
 
 tr.innerHTML=`
 
 <td>${r.data}</td>
-<td>-</td>
 <td>${r.transportadora}</td>
 <td>${r.rota}</td>
-<td>-</td>
-<td>-</td>
-<td>-</td>
 <td>${r.motorista}</td>
-<td>-</td>
-<td><span class="status ok">${r.status}</span></td>
-<td>-</td>
-<td>-</td>
-<td>✏️ <span onclick="excluir(${r.id})">🗑</span></td>
+<td>${r.status}</td>
+<td>
+<button onclick="excluir('${docu.id}')">Excluir</button>
+</td>
 
 `
 
-tb.appendChild(tr)
+tabela.appendChild(tr)
+
+total++
 
 })
 
-document.getElementById("total").innerText=registros.length
-document.getElementById("on").innerText=on
-document.getElementById("off").innerText=off
-document.getElementById("frog").innerText=frog
-document.getElementById("final").innerText=final
-document.getElementById("na").innerText=registros.length-final
+document.getElementById("total").innerText=total
 
 }
 
-function exportar(){
+window.novo=async function(){
 
-let csv="data,transportadora,rota,motorista,status\n"
+const data=prompt("Data")
+const transportadora=prompt("Transportadora")
+const rota=prompt("Rota")
+const motorista=prompt("Motorista")
+const status=prompt("Status")
 
-registros.forEach(r=>{
+await addDoc(collection(db,"cargas"),{
 
-csv+=`${r.data},${r.transportadora},${r.rota},${r.motorista},${r.status}\n`
+data,
+transportadora,
+rota,
+motorista,
+status
 
 })
 
-const blob=new Blob([csv],{type:"text/csv"})
+carregar()
 
-const a=document.createElement("a")
+}
 
-a.href=URL.createObjectURL(blob)
+window.excluir=async function(id){
 
-a.download="cargas_njg.csv"
+await deleteDoc(doc(db,"cargas",id))
 
-a.click()
+carregar()
 
 }
 
 carregar()
 
-render()
-
 </script>
 
 </body>
 </html>
+```
