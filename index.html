@@ -2,54 +2,107 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>TMS NJG OPERACIONAL</title>
+<title>TMS NJG 3.0</title>
 
 <style>
 
 body{
 font-family:Arial;
-background:#f4f6f9;
 margin:0;
+background:#f1f4f8;
+}
+
+header{
+background:#111;
+color:white;
+padding:15px;
+display:flex;
+align-items:center;
+gap:20px;
+}
+
+header img{
+height:60px;
+}
+
+.container{
 padding:20px;
 }
 
-h1{
-margin-bottom:15px;
+.cards{
+display:flex;
+gap:15px;
+margin-bottom:20px;
 }
 
-input{
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+flex:1;
+box-shadow:0 2px 5px rgba(0,0,0,0.15);
+}
+
+.card h3{
+margin:0;
+font-size:14px;
+color:#555;
+}
+
+.card p{
+font-size:24px;
+margin:5px 0 0 0;
+font-weight:bold;
+}
+
+.form{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+.form input{
 padding:6px;
-margin:3px;
-border-radius:5px;
+margin:4px;
 border:1px solid #ccc;
+border-radius:5px;
 }
 
 button{
-padding:6px 10px;
+padding:7px 12px;
 border:none;
-border-radius:5px;
+border-radius:6px;
 cursor:pointer;
 }
 
-.add{background:#28a745;color:white;}
-.del{background:#dc3545;color:white;}
+.add{
+background:#28a745;
+color:white;
+}
+
+.del{
+background:#dc3545;
+color:white;
+}
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:15px;
 background:white;
 }
 
-th,td{
-border:1px solid #ddd;
-padding:6px;
+th{
+background:#1c3d6b;
+color:white;
+padding:8px;
 font-size:13px;
 }
 
-th{
-background:#2b6cb0;
-color:white;
+td{
+padding:6px;
+border:1px solid #ddd;
+font-size:13px;
 }
 
 </style>
@@ -57,7 +110,36 @@ color:white;
 
 <body>
 
-<h1>TMS NJG – Controle de Carregamentos</h1>
+<header>
+
+<img src="logo.png">
+
+<h2>TMS NJG 3.0 • Gestão de Transportes</h2>
+
+</header>
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Cargas</h3>
+<p id="totalCargas">0</p>
+</div>
+
+<div class="card">
+<h3>Checklist OK</h3>
+<p id="checkOK">0</p>
+</div>
+
+<div class="card">
+<h3>Pendentes</h3>
+<p id="pendentes">0</p>
+</div>
+
+</div>
+
+<div class="form">
 
 <h3>Novo Carregamento</h3>
 
@@ -65,41 +147,23 @@ color:white;
 
 <input id="transportadora" placeholder="Transportadora">
 
-<input id="rota" placeholder="Origem / Destino">
+<input id="rota" placeholder="Origem/Destino">
 
 <input id="cavalo" placeholder="Cavalo">
 
 <input id="carreta" placeholder="Carreta">
 
-<input id="eixos" placeholder="Eixos">
-
-<input id="sm" placeholder="SM">
-
-<input id="senha" placeholder="Senha">
-
 <input id="motorista" placeholder="Motorista">
 
-<input id="frete" placeholder="Frete Contratado">
+<input id="frete" placeholder="Frete">
 
-<input id="peso" placeholder="Peso Carregado">
-
-<input id="complemento" placeholder="Complemento">
-
-<input id="cobrado" placeholder="Valor Cobrado">
-
-<input id="status" placeholder="Status Checklist">
-
-<input id="telefone" placeholder="Telefone">
-
-<input id="ocorrencias" placeholder="Ocorrências">
-
-<br><br>
+<input id="status" placeholder="Status">
 
 <button class="add" onclick="salvar()">Adicionar</button>
 
-<hr>
+</div>
 
-Buscar:
+Buscar
 
 <input id="busca" onkeyup="render()" placeholder="motorista / placa / transportadora">
 
@@ -125,9 +189,11 @@ Buscar:
 
 </table>
 
+</div>
+
 <script>
 
-const KEY="tms_njg_dados"
+const KEY="tms_njg"
 
 let dados=[]
 
@@ -135,9 +201,7 @@ function carregar(){
 
 const s=localStorage.getItem(KEY)
 
-if(s){
-dados=JSON.parse(s)
-}
+if(s) dados=JSON.parse(s)
 
 }
 
@@ -158,17 +222,9 @@ transportadora:transportadora.value,
 rota:rota.value,
 cavalo:cavalo.value,
 carreta:carreta.value,
-eixos:eixos.value,
-sm:sm.value,
-senha:senha.value,
 motorista:motorista.value,
 frete:frete.value,
-peso:peso.value,
-complemento:complemento.value,
-cobrado:cobrado.value,
-status:status.value,
-telefone:telefone.value,
-ocorrencias:ocorrencias.value
+status:status.value
 
 }
 
@@ -214,7 +270,11 @@ lista=lista.filter(r=>
 
 }
 
+let ok=0
+
 lista.forEach(r=>{
+
+if(r.status=="OK") ok++
 
 const tr=document.createElement("tr")
 
@@ -240,6 +300,12 @@ tr.innerHTML=`
 tb.appendChild(tr)
 
 })
+
+document.getElementById("totalCargas").innerText=dados.length
+
+document.getElementById("checkOK").innerText=ok
+
+document.getElementById("pendentes").innerText=dados.length-ok
 
 }
 
