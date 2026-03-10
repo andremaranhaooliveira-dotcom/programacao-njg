@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>TMS NJG</title>
+<title>TMS NJG 7.0</title>
 
 <style>
 
@@ -15,14 +16,14 @@ font-family:Segoe UI,Arial;
 background:#eef2f7;
 }
 
-/* TOPBAR */
+/* TOPO */
 
 .topbar{
-background:#2d4463;
+background:#2f4466;
 color:white;
 display:flex;
-align-items:center;
 justify-content:space-between;
+align-items:center;
 padding:12px 25px;
 }
 
@@ -30,36 +31,26 @@ padding:12px 25px;
 display:flex;
 align-items:center;
 gap:10px;
-font-weight:600;
 font-size:20px;
+font-weight:600;
 }
 
 .logo img{
-height:34px;
+height:40px;
 }
 
 .actions button{
-border:none;
+margin-right:10px;
 padding:8px 14px;
-margin-right:8px;
+border:none;
 border-radius:6px;
-font-weight:600;
 cursor:pointer;
-}
-
-.btnGreen{background:#27ae60;color:white}
-.btnOrange{background:#f39c12;color:white}
-.btnGray{background:#596275;color:white}
-
-.stats{
-display:flex;
-gap:25px;
 font-weight:600;
 }
 
-.stats div{
-text-align:center;
-}
+.btnGreen{background:#2ecc71;color:white}
+.btnOrange{background:#f39c12;color:white}
+.btnGray{background:#5d6d7e;color:white}
 
 /* FILTROS */
 
@@ -90,8 +81,8 @@ border-bottom:1px solid #ddd;
 
 .tab{
 font-weight:600;
-cursor:pointer;
 color:#777;
+cursor:pointer;
 }
 
 .tab.active{
@@ -109,20 +100,20 @@ padding:20px;
 }
 
 .card{
-background:white;
 flex:1;
+background:white;
+padding:15px;
 border-radius:10px;
-padding:18px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-.card .value{
-font-size:28px;
-font-weight:bold;
+.card h2{
+margin:0;
+font-size:26px;
 }
 
 .total{border-left:6px solid #ff6b00}
-.on{border-left:6px solid #2e86de}
+.on{border-left:6px solid #3498db}
 .off{border-left:6px solid #8e44ad}
 .frog{border-left:6px solid #27ae60}
 .final{border-left:6px solid #2ecc71}
@@ -130,7 +121,7 @@ font-weight:bold;
 
 /* TABELA */
 
-.tableContainer{
+.tableArea{
 padding:20px;
 }
 
@@ -142,7 +133,6 @@ background:white;
 
 th{
 background:#f4f6f9;
-text-align:left;
 padding:10px;
 font-size:13px;
 border-bottom:2px solid #ddd;
@@ -156,19 +146,12 @@ font-size:13px;
 
 .status{
 padding:4px 8px;
-border-radius:12px;
-font-weight:600;
+border-radius:10px;
 font-size:12px;
+font-weight:600;
 }
 
 .ok{background:#c8f7c5;color:#1e8449}
-.offstatus{background:#e8daef;color:#6c3483}
-.onstatus{background:#d6eaf8;color:#1b4f72}
-
-.actionsCell{
-font-size:16px;
-cursor:pointer;
-}
 
 </style>
 
@@ -176,7 +159,7 @@ cursor:pointer;
 
 <body>
 
-<!-- TOPBAR -->
+<!-- TOPO -->
 
 <div class="topbar">
 
@@ -187,28 +170,9 @@ TMS NJG
 
 <div class="actions">
 
-<button class="btnGreen">+ Novo Lançamento</button>
-<button class="btnOrange">Importar Excel</button>
-<button class="btnGray">Exportar CSV</button>
-
-</div>
-
-<div class="stats">
-
-<div>
-717<br>
-<small>CARGAS</small>
-</div>
-
-<div>
-57<br>
-<small>DIAS</small>
-</div>
-
-<div>
-423<br>
-<small>FINALIZADOS</small>
-</div>
+<button class="btnGreen" onclick="novo()">+ Novo Lançamento</button>
+<button class="btnOrange" onclick="importar()">Importar Excel</button>
+<button class="btnGray" onclick="exportar()">Exportar CSV</button>
 
 </div>
 
@@ -218,29 +182,15 @@ TMS NJG
 
 <div class="filters">
 
-<input placeholder="Transportadora, motorista, placa, rota">
+<input id="busca" placeholder="Transportadora, motorista, placa..." onkeyup="render()">
 
-<select>
-<option>DATA</option>
+<select id="statusFiltro" onchange="render()">
+<option value="">Status</option>
+<option>ON</option>
+<option>OFF</option>
+<option>FROG</option>
+<option>FINALIZADO</option>
 </select>
-
-<select>
-<option>SEÇÃO</option>
-</select>
-
-<select>
-<option>TRANSPORTADORA</option>
-</select>
-
-<select>
-<option>ROTA</option>
-</select>
-
-<select>
-<option>STATUS</option>
-</select>
-
-<button>Limpar</button>
 
 </div>
 
@@ -260,32 +210,32 @@ TMS NJG
 <div class="cards">
 
 <div class="card total">
-<div class="value">717</div>
+<h2 id="total">0</h2>
 Total Registros
 </div>
 
 <div class="card on">
-<div class="value">222</div>
+<h2 id="on">0</h2>
 CARG ON
 </div>
 
 <div class="card off">
-<div class="value">299</div>
+<h2 id="off">0</h2>
 CARG OFF
 </div>
 
 <div class="card frog">
-<div class="value">196</div>
+<h2 id="frog">0</h2>
 FROG
 </div>
 
 <div class="card final">
-<div class="value">423</div>
+<h2 id="final">0</h2>
 Finalizados
 </div>
 
 <div class="card na">
-<div class="value">44</div>
+<h2 id="na">0</h2>
 Não Atendidos
 </div>
 
@@ -293,7 +243,7 @@ Não Atendidos
 
 <!-- TABELA -->
 
-<div class="tableContainer">
+<div class="tableArea">
 
 <table>
 
@@ -317,29 +267,167 @@ Não Atendidos
 
 </thead>
 
-<tbody>
-
-<tr>
-<td>02-01-26</td>
-<td>Carg ON</td>
-<td>TRANSOLVEIRA</td>
-<td>FSC / CDX</td>
-<td>RLN-6E77</td>
-<td>REA-7776</td>
-<td>25T</td>
-<td>RUDILEI MELO</td>
-<td>9.900 kg</td>
-<td><span class="status ok">FINALIZADO</span></td>
-<td>47 92157058</td>
-<td>-</td>
-<td class="actionsCell">✏️ 🗑</td>
-</tr>
-
-</tbody>
+<tbody id="tabela"></tbody>
 
 </table>
 
 </div>
+
+<script>
+
+const KEY="TMS_NJG"
+
+let registros=[]
+
+function carregar(){
+
+const s=localStorage.getItem(KEY)
+
+if(s) registros=JSON.parse(s)
+
+}
+
+function salvar(){
+
+localStorage.setItem(KEY,JSON.stringify(registros))
+
+}
+
+function novo(){
+
+const data=prompt("DATA")
+const transportadora=prompt("TRANSPORTADORA")
+const rota=prompt("ROTA")
+const motorista=prompt("MOTORISTA")
+const status=prompt("STATUS (ON/OFF/FROG/FINALIZADO)")
+
+const r={
+id:Date.now(),
+data,
+transportadora,
+rota,
+motorista,
+status
+}
+
+registros.push(r)
+
+salvar()
+
+render()
+
+}
+
+function excluir(id){
+
+if(!confirm("Excluir registro?")) return
+
+registros=registros.filter(r=>r.id!==id)
+
+salvar()
+
+render()
+
+}
+
+function render(){
+
+const busca=document.getElementById("busca").value.toLowerCase()
+
+const filtro=document.getElementById("statusFiltro").value
+
+let lista=[...registros]
+
+if(busca){
+
+lista=lista.filter(r=>
+
+(r.transportadora||"").toLowerCase().includes(busca) ||
+(r.motorista||"").toLowerCase().includes(busca)
+
+)
+
+}
+
+if(filtro){
+
+lista=lista.filter(r=>r.status===filtro)
+
+}
+
+const tb=document.getElementById("tabela")
+
+tb.innerHTML=""
+
+let on=0,off=0,frog=0,final=0
+
+lista.forEach(r=>{
+
+if(r.status==="ON") on++
+if(r.status==="OFF") off++
+if(r.status==="FROG") frog++
+if(r.status==="FINALIZADO") final++
+
+const tr=document.createElement("tr")
+
+tr.innerHTML=`
+
+<td>${r.data}</td>
+<td>-</td>
+<td>${r.transportadora}</td>
+<td>${r.rota}</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>${r.motorista}</td>
+<td>-</td>
+<td><span class="status ok">${r.status}</span></td>
+<td>-</td>
+<td>-</td>
+<td>✏️ <span onclick="excluir(${r.id})">🗑</span></td>
+
+`
+
+tb.appendChild(tr)
+
+})
+
+document.getElementById("total").innerText=registros.length
+document.getElementById("on").innerText=on
+document.getElementById("off").innerText=off
+document.getElementById("frog").innerText=frog
+document.getElementById("final").innerText=final
+document.getElementById("na").innerText=registros.length-final
+
+}
+
+function exportar(){
+
+let csv="data,transportadora,rota,motorista,status\n"
+
+registros.forEach(r=>{
+
+csv+=`${r.data},${r.transportadora},${r.rota},${r.motorista},${r.status}\n`
+
+})
+
+const blob=new Blob([csv],{type:"text/csv"})
+
+const a=document.createElement("a")
+
+a.href=URL.createObjectURL(blob)
+
+a.download="cargas_njg.csv"
+
+a.click()
+
+}
+
+carregar()
+
+render()
+
+</script>
 
 </body>
 </html>
