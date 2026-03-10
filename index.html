@@ -1453,32 +1453,43 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ========== STORAGE ==========
-const LS_KEY = 'iconic_v3_2026';
+// ===== FIRESTORE =====
+const db = firebase.firestore();
 
-let LIVE_DATA = [];
+function carregarDados(){
 
-function saveStorage() {
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify(LIVE_DATA));
-  } catch(e) {
-    console.error(e);
-  }
+  LIVE_DATA = [];
+
+  db.collection("programacao").get().then((querySnapshot) => {
+
+    querySnapshot.forEach((doc) => {
+      LIVE_DATA.push({
+        _id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    populateFilters();
+    buildDatePills();
+    applyFilters();
+    updateHdrStats();
+
+  });
+
 }
 
-function loadStorage() {
-  try {
-    const s = localStorage.getItem(LS_KEY);
-    if (!s) return false;
+function excluirRegistro(id){
 
-    LIVE_DATA = JSON.parse(s);
-    return true;
+  db.collection("programacao").doc(id).delete()
+  .then(() => {
+    showToast("Registro excluído");
+    carregarDados();
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
-  } catch(e) {
-    return false;
-  }
 }
-
 </script>
 </body>
 </html>
