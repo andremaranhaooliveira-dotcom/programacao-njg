@@ -1442,7 +1442,6 @@ const provider = new GoogleAuthProvider();
 window.logout = async () => {
   await signOut(auth);
 };
-
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById("btnLogin").style.display = "none";
@@ -1452,6 +1451,38 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("btnLogout").style.display = "none";
   }
 });
+
+
+// ========== STORAGE ==========
+const LS_KEY = 'iconic_v3_2026';
+
+let LIVE_DATA = [];
+
+function saveStorage() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(LIVE_DATA));
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function loadStorage() {
+  try {
+    const s = localStorage.getItem(LS_KEY);
+    if (!s) return false;
+
+    LIVE_DATA = JSON.parse(s);
+    return true;
+
+  } catch(e) {
+    return false;
+  }
+}
+
+</script>
+</body>
+</html>
+
 </script>
 </body>
 </html>
