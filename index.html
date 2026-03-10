@@ -4,7 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TMS NJG 10.0</title>
+
+<title>TMS NJG 12.0</title>
 
 <style>
 
@@ -15,7 +16,7 @@ background:#eef2f7;
 }
 
 .topbar{
-background:#2f4466;
+background:#1f2d3d;
 color:white;
 display:flex;
 justify-content:space-between;
@@ -37,19 +38,19 @@ height:40px;
 
 button{
 border:none;
-padding:8px 14px;
+padding:7px 12px;
 border-radius:6px;
 cursor:pointer;
 color:white;
 }
 
-.btnNovo{background:#2ecc71;}
-.btnEdit{background:#3498db;}
-.btnDel{background:#e74c3c;}
+.btnSalvar{background:#2ecc71;}
+.btnEditar{background:#3498db;}
+.btnExcluir{background:#e74c3c;}
 
-.cards{
+.dashboard{
 display:flex;
-gap:15px;
+gap:20px;
 padding:20px;
 }
 
@@ -61,19 +62,18 @@ border-radius:10px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-.formArea{
-padding:20px;
+.form{
 background:white;
+padding:15px;
 margin:20px;
 border-radius:10px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-input,select{
-padding:7px;
-border-radius:6px;
-border:1px solid #ccc;
+.form input{
+padding:6px;
 margin:4px;
+border:1px solid #ccc;
+border-radius:5px;
 }
 
 .tableArea{
@@ -88,15 +88,18 @@ background:white;
 
 th{
 background:#f4f6f9;
-padding:10px;
+padding:8px;
+font-size:12px;
 }
 
 td{
-padding:8px;
+padding:6px;
+font-size:12px;
 border-bottom:1px solid #eee;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -105,49 +108,47 @@ border-bottom:1px solid #eee;
 
 <div class="logo">
 <img src="logo.png">
-<span>TMS NJG 10.0</span>
+TMS NJG 12.0
 </div>
-
-<button class="btnNovo" onclick="limparForm()">Novo</button>
 
 </header>
 
-<section class="cards">
+<div class="dashboard">
 
 <div class="card">
 <h2 id="total">0</h2>
-<p>Total Registros</p>
+Total Registros
 </div>
 
 <div class="card">
-<h2 id="finalizados">0</h2>
-<p>Finalizados</p>
+<h2 id="freteTotal">0</h2>
+Total Frete
 </div>
 
-</section>
+</div>
 
-<section class="formArea">
+<div class="form">
 
+<input id="viagem" placeholder="Viagem">
 <input id="data" placeholder="Data">
-
+<input id="origem" placeholder="Origem">
+<input id="destino" placeholder="Destino">
 <input id="transportadora" placeholder="Transportadora">
-
-<input id="rota" placeholder="Rota">
-
 <input id="motorista" placeholder="Motorista">
+<input id="veiculo" placeholder="Veículo">
+<input id="placa" placeholder="Placa">
+<input id="peso" placeholder="Peso">
+<input id="volumes" placeholder="Volumes">
+<input id="frete" placeholder="Frete CTE">
+<input id="freteMotorista" placeholder="Frete Motorista">
+<input id="pedagio" placeholder="Pedágio">
+<input id="status" placeholder="Status">
 
-<select id="status">
-<option>ON</option>
-<option>OFF</option>
-<option>FROG</option>
-<option>FINALIZADO</option>
-</select>
+<button class="btnSalvar" onclick="salvar()">Salvar</button>
 
-<button class="btnNovo" onclick="salvar()">Salvar</button>
+</div>
 
-</section>
-
-<section class="tableArea">
+<div class="tableArea">
 
 <input id="busca" placeholder="Buscar..." onkeyup="filtrar()">
 
@@ -156,12 +157,23 @@ border-bottom:1px solid #eee;
 <thead>
 
 <tr>
-<th>DATA</th>
-<th>TRANSPORTADORA</th>
-<th>ROTA</th>
-<th>MOTORISTA</th>
-<th>STATUS</th>
-<th>AÇÕES</th>
+
+<th>Viagem</th>
+<th>Data</th>
+<th>Origem</th>
+<th>Destino</th>
+<th>Transportadora</th>
+<th>Motorista</th>
+<th>Veículo</th>
+<th>Placa</th>
+<th>Peso</th>
+<th>Volumes</th>
+<th>Frete</th>
+<th>Frete Motorista</th>
+<th>Pedágio</th>
+<th>Status</th>
+<th>Ações</th>
+
 </tr>
 
 </thead>
@@ -170,7 +182,7 @@ border-bottom:1px solid #eee;
 
 </table>
 
-</section>
+</div>
 
 <script type="module">
 
@@ -197,7 +209,6 @@ measurementId: "G-JWDW47YE74"
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 let editId=null;
@@ -211,7 +222,7 @@ const snapshot=await getDocs(collection(db,"cargas"));
 tabela.innerHTML="";
 
 let total=0;
-let finalizados=0;
+let freteTotal=0;
 
 snapshot.forEach((docu)=>{
 
@@ -221,17 +232,26 @@ const tr=document.createElement("tr");
 
 tr.innerHTML=`
 
+<td>${r.viagem||""}</td>
 <td>${r.data||""}</td>
+<td>${r.origem||""}</td>
+<td>${r.destino||""}</td>
 <td>${r.transportadora||""}</td>
-<td>${r.rota||""}</td>
 <td>${r.motorista||""}</td>
+<td>${r.veiculo||""}</td>
+<td>${r.placa||""}</td>
+<td>${r.peso||""}</td>
+<td>${r.volumes||""}</td>
+<td>${r.frete||""}</td>
+<td>${r.freteMotorista||""}</td>
+<td>${r.pedagio||""}</td>
 <td>${r.status||""}</td>
 
 <td>
 
-<button class="btnEdit" onclick="editar('${docu.id}','${r.data}','${r.transportadora}','${r.rota}','${r.motorista}','${r.status}')">Editar</button>
+<button class="btnEditar" onclick="editar('${docu.id}')">Editar</button>
 
-<button class="btnDel" onclick="excluir('${docu.id}')">Excluir</button>
+<button class="btnExcluir" onclick="excluir('${docu.id}')">Excluir</button>
 
 </td>
 
@@ -241,69 +261,57 @@ tabela.appendChild(tr);
 
 total++;
 
-if(r.status==="FINALIZADO") finalizados++;
+freteTotal+=Number(r.frete||0);
 
 });
 
 document.getElementById("total").innerText=total;
-
-document.getElementById("finalizados").innerText=finalizados;
+document.getElementById("freteTotal").innerText=freteTotal;
 
 }
 
 window.salvar=async function(){
 
-const data=document.getElementById("data").value;
-const transportadora=document.getElementById("transportadora").value;
-const rota=document.getElementById("rota").value;
-const motorista=document.getElementById("motorista").value;
-const status=document.getElementById("status").value;
+const data={
+
+viagem:viagem.value,
+data:data.value,
+origem:origem.value,
+destino:destino.value,
+transportadora:transportadora.value,
+motorista:motorista.value,
+veiculo:veiculo.value,
+placa:placa.value,
+peso:peso.value,
+volumes:volumes.value,
+frete:frete.value,
+freteMotorista:freteMotorista.value,
+pedagio:pedagio.value,
+status:status.value
+
+};
 
 if(editId){
 
-await updateDoc(doc(db,"cargas",editId),{
-data,
-transportadora,
-rota,
-motorista,
-status
-});
+await updateDoc(doc(db,"cargas",editId),data);
 
 editId=null;
 
 }else{
 
-await addDoc(collection(db,"cargas"),{
-data,
-transportadora,
-rota,
-motorista,
-status
-});
+await addDoc(collection(db,"cargas"),data);
 
 }
 
-limparForm();
+document.querySelectorAll(".form input").forEach(i=>i.value="");
 
 carregar();
 
 }
 
-window.editar=function(id,data,t,r,m,s){
-
-editId=id;
-
-document.getElementById("data").value=data;
-document.getElementById("transportadora").value=t;
-document.getElementById("rota").value=r;
-document.getElementById("motorista").value=m;
-document.getElementById("status").value=s;
-
-}
-
 window.excluir=async function(id){
 
-if(!confirm("Excluir registro?")) return;
+if(!confirm("Excluir registro?"))return;
 
 await deleteDoc(doc(db,"cargas",id));
 
@@ -311,25 +319,11 @@ carregar();
 
 }
 
-window.limparForm=function(){
-
-editId=null;
-
-document.getElementById("data").value="";
-document.getElementById("transportadora").value="";
-document.getElementById("rota").value="";
-document.getElementById("motorista").value="";
-document.getElementById("status").value="ON";
-
-}
-
 window.filtrar=function(){
 
 const termo=document.getElementById("busca").value.toLowerCase();
 
-const linhas=document.querySelectorAll("#tabela tr");
-
-linhas.forEach(l=>{
+document.querySelectorAll("#tabela tr").forEach(l=>{
 
 l.style.display=l.innerText.toLowerCase().includes(termo)?"":"none";
 
