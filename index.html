@@ -1,48 +1,271 @@
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById("btnLogin").style.display = "none";
-    document.getElementById("btnLogout").style.display = "inline-block";
-  } else {
-    document.getElementById("btnLogin").style.display = "inline-block";
-    document.getElementById("btnLogout").style.display = "none";
-  }
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<title>Programação NJG</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+margin:40px;
+}
+
+h1{
+margin-bottom:10px;
+}
+
+.topbar{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+input,select{
+padding:8px;
+}
+
+button{
+padding:8px 14px;
+cursor:pointer;
+}
+
+table{
+width:100%;
+background:white;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:8px;
+}
+
+th{
+background:#eee;
+}
+
+.stats{
+margin:15px 0;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Programação NJG</h1>
+
+<div class="topbar">
+
+<input id="data" placeholder="Data">
+
+<select id="secao">
+<option>ON</option>
+<option>OFF</option>
+<option>FROG</option>
+</select>
+
+<input id="transportadora" placeholder="Transportadora">
+
+<input id="rota" placeholder="Origem / Destino">
+
+<input id="motorista" placeholder="Motorista">
+
+<button onclick="adicionar()">Adicionar</button>
+
+<button onclick="exportar()">Exportar Excel</button>
+
+</div>
+
+<div>
+
+Filtro data:
+
+<input id="filtroData" onchange="render()">
+
+</div>
+
+<div class="stats" id="stats"></div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Data</th>
+<th>Seção</th>
+<th>Transportadora</th>
+<th>Rota</th>
+<th>Motorista</th>
+<th>Ação</th>
+</tr>
+
+</thead>
+
+<tbody id="tbody"></tbody>
+
+</table>
+
+
+<script>
+
+const LS_KEY="njg_programacao_v2";
+
+let dados=[];
+
+
+/* carregar */
+
+function carregar(){
+
+const s=localStorage.getItem(LS_KEY);
+
+if(!s){
+dados=[];
+return;
+}
+
+dados=JSON.parse(s);
+
+}
+
+
+/* salvar */
+
+function salvar(){
+
+localStorage.setItem(LS_KEY,JSON.stringify(dados));
+
+}
+
+
+/* adicionar */
+
+function adicionar(){
+
+const registro={
+
+id:Date.now(),
+
+data:document.getElementById("data").value,
+secao:document.getElementById("secao").value,
+transportadora:document.getElementById("transportadora").value,
+rota:document.getElementById("rota").value,
+motorista:document.getElementById("motorista").value
+
+};
+
+dados.push(registro);
+
+salvar();
+
+render();
+
+}
+
+
+/* excluir */
+
+function excluir(id){
+
+dados=dados.filter(r=>r.id!==id);
+
+salvar();
+
+render();
+
+}
+
+
+/* render tabela */
+
+function render(){
+
+const tbody=document.getElementById("tbody");
+
+tbody.innerHTML="";
+
+const filtro=document.getElementById("filtroData").value;
+
+let lista=dados;
+
+if(filtro){
+
+lista=dados.filter(r=>r.data===filtro);
+
+}
+
+lista.forEach(r=>{
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>${r.data}</td>
+<td>${r.secao}</td>
+<td>${r.transportadora}</td>
+<td>${r.rota}</td>
+<td>${r.motorista}</td>
+
+<td>
+
+<button onclick="excluir(${r.id})">
+
+Excluir
+
+</button>
+
+</td>
+
+`;
+
+tbody.appendChild(tr);
+
 });
 
-
-// ===== FIRESTORE =====
-const db = firebase.firestore();
-
-function carregarDados(){
-
-  LIVE_DATA = [];
-
-  db.collection("programacao").get().then((querySnapshot) => {
-
-    querySnapshot.forEach((doc) => {
-      LIVE_DATA.push({
-        _id: doc.id,
-        ...doc.data()
-      });
-    });
-
-    populateFilters();
-    buildDatePills();
-    applyFilters();
-    updateHdrStats();
-
-  });
+document.getElementById("stats").innerText=
+"Total de registros: "+lista.length;
 
 }
 
-function excluirRegistro(id){
 
-  db.collection("programacao").doc(id).delete()
-  .then(() => {
-    showToast("Registro excluído");
-    carregarDados();
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+/* exportar */
+
+function exportar(){
+
+let csv="Data,Secao,Transportadora,Rota,Motorista\n";
+
+dados.forEach(r=>{
+
+csv+=`${r.data},${r.secao},${r.transportadora},${r.rota},${r.motorista}\n`;
+
+});
+
+const blob=new Blob([csv]);
+
+const a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="programacao_njg.csv";
+
+a.click();
 
 }
+
+
+/* iniciar */
+
+carregar();
+
+render();
+
+</script>
+
+</body>
+</html>
