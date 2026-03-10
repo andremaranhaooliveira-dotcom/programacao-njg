@@ -1,56 +1,78 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
 <meta charset="UTF-8">
-<title>Programação de Cargas NJG</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS NJG PRO</title>
 
 <style>
 
 body{
-font-family:Arial;
-background:#eef1f5;
-margin:30px;
+font-family: Arial;
+background:#eef2f6;
+margin:0;
+padding:20px;
 }
 
 h1{
+margin-bottom:10px;
+}
+
+.menu{
 margin-bottom:20px;
 }
 
-.box{
+.menu button{
+margin-right:6px;
+padding:8px 14px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#2b6cb0;
+color:white;
+}
+
+.menu button:hover{
+background:#1a4f85;
+}
+
+.panel{
 background:white;
-padding:15px;
+padding:16px;
 border-radius:8px;
-margin-bottom:15px;
+margin-bottom:16px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 input,select{
-padding:8px;
+padding:7px;
 margin:3px;
+border-radius:5px;
+border:1px solid #ccc;
 }
 
 button{
-padding:7px 12px;
+padding:7px 10px;
 border:none;
 border-radius:5px;
 cursor:pointer;
 }
 
 .add{background:#28a745;color:white;}
-.del{background:#dc3545;color:white;}
 .edit{background:#ffc107;}
-.export{background:#007bff;color:white;}
+.del{background:#dc3545;color:white;}
 
 table{
 width:100%;
 border-collapse:collapse;
 background:white;
+margin-top:10px;
 }
 
 th,td{
 border:1px solid #ddd;
-padding:8px;
+padding:7px;
+font-size:14px;
 }
 
 th{
@@ -61,127 +83,144 @@ background:#f2f2f2;
 .off{background:#d1ecf1;}
 .frog{background:#e2d9f3;}
 
+.hidden{
+display:none;
+}
+
 .stats{
+font-size:16px;
 font-weight:bold;
-margin:10px 0;
+margin-top:10px;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<h1>Programação de Cargas NJG</h1>
+<h1>TMS NJG PRO</h1>
 
-<div class="box">
+<div class="menu">
 
-<input id="data" type="date">
+<button onclick="abrir('dashboard')">Dashboard</button>
+<button onclick="abrir('programacao')">Programação</button>
+
+</div>
+
+<div id="dashboard" class="panel">
+
+<h3>Dashboard</h3>
+
+<div id="stats" class="stats"></div>
+
+</div>
+
+<div id="programacao" class="panel hidden">
+
+<h3>Nova Programação</h3>
+
+<input type="date" id="data">
 
 <select id="secao">
-<option value="">Seção</option>
 <option value="ON">ON</option>
 <option value="OFF">OFF</option>
 <option value="FROG">FROG</option>
 </select>
 
 <input id="transportadora" placeholder="Transportadora">
-
-<input id="rota" placeholder="Origem / Destino">
-
 <input id="motorista" placeholder="Motorista">
+<input id="placa" placeholder="Placa">
+<input id="origem" placeholder="Origem">
+<input id="destino" placeholder="Destino">
 
-<button class="add" onclick="salvarRegistro()">Adicionar</button>
+<button class="add" onclick="salvar()">Adicionar</button>
 
-<button class="export" onclick="exportar()">Exportar Excel</button>
-
-</div>
-
-<div class="box">
+<hr>
 
 Buscar:
 
-<input id="busca" onkeyup="render()" placeholder="motorista / transportadora">
-
-Filtro Data:
-
-<input id="filtroData" type="date" onchange="render()">
-
-</div>
-
-<div class="stats" id="stats"></div>
+<input id="busca" onkeyup="render()" placeholder="motorista / placa / transportadora">
 
 <table>
 
 <thead>
-
 <tr>
 <th>Data</th>
 <th>Seção</th>
 <th>Transportadora</th>
-<th>Rota</th>
 <th>Motorista</th>
+<th>Placa</th>
+<th>Origem</th>
+<th>Destino</th>
 <th>Ações</th>
 </tr>
-
 </thead>
 
 <tbody id="tbody"></tbody>
 
 </table>
 
+</div>
+
 <script>
 
-const LS_KEY="njg_cargas_v1"
+const KEY="tms_njg_storage"
 
 let dados=[]
 let editando=null
 
-function carregar(){
+function abrir(id){
 
-const s=localStorage.getItem(LS_KEY)
+document.getElementById("dashboard").classList.add("hidden")
+document.getElementById("programacao").classList.add("hidden")
 
-if(s){
-
-dados=JSON.parse(s)
+document.getElementById(id).classList.remove("hidden")
 
 }
+
+function carregar(){
+
+const s=localStorage.getItem(KEY)
+
+if(s){
+dados=JSON.parse(s)
+}
+
+}
+
+function gravar(){
+localStorage.setItem(KEY,JSON.stringify(dados))
+}
+
+function limparCampos(){
+
+data.value=""
+transportadora.value=""
+motorista.value=""
+placa.value=""
+origem.value=""
+destino.value=""
 
 }
 
 function salvar(){
 
-localStorage.setItem(LS_KEY,JSON.stringify(dados))
-
-}
-
-function limpar(){
-
-data.value=""
-secao.value=""
-transportadora.value=""
-rota.value=""
-motorista.value=""
-
-}
-
-function salvarRegistro(){
+if(!data.value) return alert("Informe a data")
 
 const registro={
-
 id:editando ? editando : Date.now(),
-
 data:data.value,
 secao:secao.value,
 transportadora:transportadora.value,
-rota:rota.value,
-motorista:motorista.value
-
+motorista:motorista.value,
+placa:placa.value,
+origem:origem.value,
+destino:destino.value
 }
 
 if(editando){
 
-dados=dados.map(r=>r.id===editando ? registro : r)
+dados=dados.map(r=>r.id===editando?registro:r)
 editando=null
 
 }else{
@@ -190,10 +229,8 @@ dados.push(registro)
 
 }
 
-salvar()
-
-limpar()
-
+gravar()
+limparCampos()
 render()
 
 }
@@ -205,10 +242,14 @@ const r=dados.find(x=>x.id===id)
 data.value=r.data
 secao.value=r.secao
 transportadora.value=r.transportadora
-rota.value=r.rota
 motorista.value=r.motorista
+placa.value=r.placa
+origem.value=r.origem
+destino.value=r.destino
 
 editando=id
+
+abrir("programacao")
 
 }
 
@@ -218,8 +259,7 @@ if(!confirm("Deseja excluir este registro?")) return
 
 dados=dados.filter(r=>r.id!==id)
 
-salvar()
-
+gravar()
 render()
 
 }
@@ -232,60 +272,49 @@ tbody.innerHTML=""
 
 let lista=[...dados]
 
-const filtro=document.getElementById("filtroData").value
-
-if(filtro){
-
-lista=lista.filter(r=>r.data===filtro)
-
-}
-
 const busca=document.getElementById("busca").value.toLowerCase()
 
 if(busca){
 
 lista=lista.filter(r=>
 
-r.motorista.toLowerCase().includes(busca) ||
-
-r.transportadora.toLowerCase().includes(busca)
+(r.motorista||"").toLowerCase().includes(busca) ||
+(r.transportadora||"").toLowerCase().includes(busca) ||
+(r.placa||"").toLowerCase().includes(busca)
 
 )
 
 }
 
-let totalON=0
-let totalOFF=0
-let totalFROG=0
+let on=0
+let off=0
+let frog=0
 
 lista.forEach(r=>{
 
-if(r.secao==="ON") totalON++
-if(r.secao==="OFF") totalOFF++
-if(r.secao==="FROG") totalFROG++
+if(r.secao==="ON") on++
+if(r.secao==="OFF") off++
+if(r.secao==="FROG") frog++
 
 const tr=document.createElement("tr")
 
-let classe=""
-
-if(r.secao==="ON") classe="on"
-if(r.secao==="OFF") classe="off"
-if(r.secao==="FROG") classe="frog"
-
-tr.className=classe
+if(r.secao==="ON") tr.className="on"
+if(r.secao==="OFF") tr.className="off"
+if(r.secao==="FROG") tr.className="frog"
 
 tr.innerHTML=`
 
 <td>${r.data}</td>
 <td>${r.secao}</td>
 <td>${r.transportadora}</td>
-<td>${r.rota}</td>
 <td>${r.motorista}</td>
+<td>${r.placa}</td>
+<td>${r.origem}</td>
+<td>${r.destino}</td>
 
 <td>
 
 <button class="edit" onclick="editar(${r.id})">Editar</button>
-
 <button class="del" onclick="excluir(${r.id})">Excluir</button>
 
 </td>
@@ -297,35 +326,11 @@ tbody.appendChild(tr)
 })
 
 document.getElementById("stats").innerText=
-
-`TOTAL: ${lista.length} | ON: ${totalON} | OFF: ${totalOFF} | FROG: ${totalFROG}`
-
-}
-
-function exportar(){
-
-let csv="Data,Secao,Transportadora,Rota,Motorista\n"
-
-dados.forEach(r=>{
-
-csv+=`${r.data},${r.secao},${r.transportadora},${r.rota},${r.motorista}\n`
-
-})
-
-const blob=new Blob([csv])
-
-const a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-
-a.download="programacao_njg.csv"
-
-a.click()
+`TOTAL: ${lista.length} | ON: ${on} | OFF: ${off} | FROG: ${frog}`
 
 }
 
 carregar()
-
 render()
 
 </script>
