@@ -264,8 +264,60 @@ a.click();
 carregar();
 
 render();
+<script>
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("btnLogin").style.display = "none";
+    document.getElementById("btnLogout").style.display = "inline-block";
+  } else {
+    document.getElementById("btnLogin").style.display = "inline-block";
+    document.getElementById("btnLogout").style.display = "none";
+  }
+});
+
+
+// ===== FIRESTORE =====
+const db = firebase.firestore();
+
+function carregarDados(){
+
+LIVE_DATA = [];
+
+db.collection("programacao").get().then((querySnapshot)=>{
+
+querySnapshot.forEach((doc)=>{
+
+LIVE_DATA.push({
+_id: doc.id,
+...doc.data()
+});
+
+});
+
+populateFilters();
+buildDatePills();
+applyFilters();
+updateHdrStats();
+
+});
+
+}
+
+function excluirRegistro(id){
+
+db.collection("programacao").doc(id).delete().then(()=>{
+
+showToast("Registro excluído");
+
+carregarDados();
+
+}).catch((error)=>{
+
+console.error(error);
+
+});
 
 </script>
-
 </body>
 </html>
