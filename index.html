@@ -2,95 +2,54 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TMS NJG PRO</title>
+<title>TMS NJG OPERACIONAL</title>
 
 <style>
 
 body{
-font-family: Arial;
-background:#eef2f6;
+font-family:Arial;
+background:#f4f6f9;
 margin:0;
 padding:20px;
 }
 
 h1{
-margin-bottom:10px;
+margin-bottom:15px;
 }
 
-.menu{
-margin-bottom:20px;
-}
-
-.menu button{
-margin-right:6px;
-padding:8px 14px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#2b6cb0;
-color:white;
-}
-
-.menu button:hover{
-background:#1a4f85;
-}
-
-.panel{
-background:white;
-padding:16px;
-border-radius:8px;
-margin-bottom:16px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-input,select{
-padding:7px;
+input{
+padding:6px;
 margin:3px;
 border-radius:5px;
 border:1px solid #ccc;
 }
 
 button{
-padding:7px 10px;
+padding:6px 10px;
 border:none;
 border-radius:5px;
 cursor:pointer;
 }
 
 .add{background:#28a745;color:white;}
-.edit{background:#ffc107;}
 .del{background:#dc3545;color:white;}
 
 table{
 width:100%;
 border-collapse:collapse;
+margin-top:15px;
 background:white;
-margin-top:10px;
 }
 
 th,td{
 border:1px solid #ddd;
-padding:7px;
-font-size:14px;
+padding:6px;
+font-size:13px;
 }
 
 th{
-background:#f2f2f2;
-}
-
-.on{background:#d4edda;}
-.off{background:#d1ecf1;}
-.frog{background:#e2d9f3;}
-
-.hidden{
-display:none;
-}
-
-.stats{
-font-size:16px;
-font-weight:bold;
-margin-top:10px;
+background:#2b6cb0;
+color:white;
 }
 
 </style>
@@ -98,40 +57,43 @@ margin-top:10px;
 
 <body>
 
-<h1>TMS NJG PRO</h1>
+<h1>TMS NJG – Controle de Carregamentos</h1>
 
-<div class="menu">
+<h3>Novo Carregamento</h3>
 
-<button onclick="abrir('dashboard')">Dashboard</button>
-<button onclick="abrir('programacao')">Programação</button>
-
-</div>
-
-<div id="dashboard" class="panel">
-
-<h3>Dashboard</h3>
-
-<div id="stats" class="stats"></div>
-
-</div>
-
-<div id="programacao" class="panel hidden">
-
-<h3>Nova Programação</h3>
-
-<input type="date" id="data">
-
-<select id="secao">
-<option value="ON">ON</option>
-<option value="OFF">OFF</option>
-<option value="FROG">FROG</option>
-</select>
+<input id="data" type="date">
 
 <input id="transportadora" placeholder="Transportadora">
+
+<input id="rota" placeholder="Origem / Destino">
+
+<input id="cavalo" placeholder="Cavalo">
+
+<input id="carreta" placeholder="Carreta">
+
+<input id="eixos" placeholder="Eixos">
+
+<input id="sm" placeholder="SM">
+
+<input id="senha" placeholder="Senha">
+
 <input id="motorista" placeholder="Motorista">
-<input id="placa" placeholder="Placa">
-<input id="origem" placeholder="Origem">
-<input id="destino" placeholder="Destino">
+
+<input id="frete" placeholder="Frete Contratado">
+
+<input id="peso" placeholder="Peso Carregado">
+
+<input id="complemento" placeholder="Complemento">
+
+<input id="cobrado" placeholder="Valor Cobrado">
+
+<input id="status" placeholder="Status Checklist">
+
+<input id="telefone" placeholder="Telefone">
+
+<input id="ocorrencias" placeholder="Ocorrências">
+
+<br><br>
 
 <button class="add" onclick="salvar()">Adicionar</button>
 
@@ -144,39 +106,30 @@ Buscar:
 <table>
 
 <thead>
+
 <tr>
 <th>Data</th>
-<th>Seção</th>
 <th>Transportadora</th>
+<th>Rota</th>
+<th>Cavalo</th>
+<th>Carreta</th>
 <th>Motorista</th>
-<th>Placa</th>
-<th>Origem</th>
-<th>Destino</th>
+<th>Frete</th>
+<th>Status</th>
 <th>Ações</th>
 </tr>
+
 </thead>
 
-<tbody id="tbody"></tbody>
+<tbody id="tabela"></tbody>
 
 </table>
 
-</div>
-
 <script>
 
-const KEY="tms_njg_storage"
+const KEY="tms_njg_dados"
 
 let dados=[]
-let editando=null
-
-function abrir(id){
-
-document.getElementById("dashboard").classList.add("hidden")
-document.getElementById("programacao").classList.add("hidden")
-
-document.getElementById(id).classList.remove("hidden")
-
-}
 
 function carregar(){
 
@@ -188,87 +141,62 @@ dados=JSON.parse(s)
 
 }
 
-function gravar(){
+function salvarStorage(){
+
 localStorage.setItem(KEY,JSON.stringify(dados))
-}
-
-function limparCampos(){
-
-data.value=""
-transportadora.value=""
-motorista.value=""
-placa.value=""
-origem.value=""
-destino.value=""
 
 }
 
 function salvar(){
 
-if(!data.value) return alert("Informe a data")
+const r={
 
-const registro={
-id:editando ? editando : Date.now(),
+id:Date.now(),
+
 data:data.value,
-secao:secao.value,
 transportadora:transportadora.value,
+rota:rota.value,
+cavalo:cavalo.value,
+carreta:carreta.value,
+eixos:eixos.value,
+sm:sm.value,
+senha:senha.value,
 motorista:motorista.value,
-placa:placa.value,
-origem:origem.value,
-destino:destino.value
-}
-
-if(editando){
-
-dados=dados.map(r=>r.id===editando?registro:r)
-editando=null
-
-}else{
-
-dados.push(registro)
+frete:frete.value,
+peso:peso.value,
+complemento:complemento.value,
+cobrado:cobrado.value,
+status:status.value,
+telefone:telefone.value,
+ocorrencias:ocorrencias.value
 
 }
 
-gravar()
-limparCampos()
+dados.push(r)
+
+salvarStorage()
+
 render()
-
-}
-
-function editar(id){
-
-const r=dados.find(x=>x.id===id)
-
-data.value=r.data
-secao.value=r.secao
-transportadora.value=r.transportadora
-motorista.value=r.motorista
-placa.value=r.placa
-origem.value=r.origem
-destino.value=r.destino
-
-editando=id
-
-abrir("programacao")
 
 }
 
 function excluir(id){
 
-if(!confirm("Deseja excluir este registro?")) return
+if(!confirm("Excluir registro?")) return
 
-dados=dados.filter(r=>r.id!==id)
+dados=dados.filter(x=>x.id!==id)
 
-gravar()
+salvarStorage()
+
 render()
 
 }
 
 function render(){
 
-const tbody=document.getElementById("tbody")
+const tb=document.getElementById("tabela")
 
-tbody.innerHTML=""
+tb.innerHTML=""
 
 let lista=[...dados]
 
@@ -280,57 +208,43 @@ lista=lista.filter(r=>
 
 (r.motorista||"").toLowerCase().includes(busca) ||
 (r.transportadora||"").toLowerCase().includes(busca) ||
-(r.placa||"").toLowerCase().includes(busca)
+(r.cavalo||"").toLowerCase().includes(busca)
 
 )
 
 }
 
-let on=0
-let off=0
-let frog=0
-
 lista.forEach(r=>{
 
-if(r.secao==="ON") on++
-if(r.secao==="OFF") off++
-if(r.secao==="FROG") frog++
-
 const tr=document.createElement("tr")
-
-if(r.secao==="ON") tr.className="on"
-if(r.secao==="OFF") tr.className="off"
-if(r.secao==="FROG") tr.className="frog"
 
 tr.innerHTML=`
 
 <td>${r.data}</td>
-<td>${r.secao}</td>
 <td>${r.transportadora}</td>
+<td>${r.rota}</td>
+<td>${r.cavalo}</td>
+<td>${r.carreta}</td>
 <td>${r.motorista}</td>
-<td>${r.placa}</td>
-<td>${r.origem}</td>
-<td>${r.destino}</td>
+<td>${r.frete}</td>
+<td>${r.status}</td>
 
 <td>
 
-<button class="edit" onclick="editar(${r.id})">Editar</button>
 <button class="del" onclick="excluir(${r.id})">Excluir</button>
 
 </td>
 
 `
 
-tbody.appendChild(tr)
+tb.appendChild(tr)
 
 })
-
-document.getElementById("stats").innerText=
-`TOTAL: ${lista.length} | ON: ${on} | OFF: ${off} | FROG: ${frog}`
 
 }
 
 carregar()
+
 render()
 
 </script>
