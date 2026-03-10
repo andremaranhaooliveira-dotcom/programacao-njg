@@ -2,14 +2,9 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>TMS NJG Online</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TMS NJG 10.0</title>
 
 <style>
 
@@ -22,10 +17,10 @@ background:#eef2f7;
 .topbar{
 background:#2f4466;
 color:white;
-padding:12px 20px;
 display:flex;
 justify-content:space-between;
 align-items:center;
+padding:12px 20px;
 }
 
 .logo{
@@ -41,13 +36,16 @@ height:40px;
 }
 
 button{
-padding:8px 14px;
 border:none;
+padding:8px 14px;
 border-radius:6px;
 cursor:pointer;
+color:white;
 }
 
-.btnNovo{background:#2ecc71;color:white}
+.btnNovo{background:#2ecc71;}
+.btnEdit{background:#3498db;}
+.btnDel{background:#e74c3c;}
 
 .cards{
 display:flex;
@@ -61,6 +59,21 @@ padding:15px;
 flex:1;
 border-radius:10px;
 box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.formArea{
+padding:20px;
+background:white;
+margin:20px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+input,select{
+padding:7px;
+border-radius:6px;
+border:1px solid #ccc;
+margin:4px;
 }
 
 .tableArea{
@@ -84,32 +97,59 @@ border-bottom:1px solid #eee;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="topbar">
+<header class="topbar">
 
 <div class="logo">
 <img src="logo.png">
-TMS NJG
+<span>TMS NJG 10.0</span>
 </div>
 
-<button class="btnNovo" onclick="novo()">Novo Lançamento</button>
+<button class="btnNovo" onclick="limparForm()">Novo</button>
 
-</div>
+</header>
 
-<div class="cards">
+<section class="cards">
 
 <div class="card">
 <h2 id="total">0</h2>
-Total Registros
+<p>Total Registros</p>
 </div>
 
+<div class="card">
+<h2 id="finalizados">0</h2>
+<p>Finalizados</p>
 </div>
 
-<div class="tableArea">
+</section>
+
+<section class="formArea">
+
+<input id="data" placeholder="Data">
+
+<input id="transportadora" placeholder="Transportadora">
+
+<input id="rota" placeholder="Rota">
+
+<input id="motorista" placeholder="Motorista">
+
+<select id="status">
+<option>ON</option>
+<option>OFF</option>
+<option>FROG</option>
+<option>FINALIZADO</option>
+</select>
+
+<button class="btnNovo" onclick="salvar()">Salvar</button>
+
+</section>
+
+<section class="tableArea">
+
+<input id="busca" placeholder="Buscar..." onkeyup="filtrar()">
 
 <table>
 
@@ -130,98 +170,174 @@ Total Registros
 
 </table>
 
-</div>
+</section>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+getFirestore,
+collection,
+addDoc,
+getDocs,
+updateDoc,
+deleteDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAd4yEQwsQ2ps8oRv4Ng97F1xu1Sc-mnC8",
-  authDomain: "njg-controle-de-carregamento.firebaseapp.com",
-  projectId: "njg-controle-de-carregamento",
-  storageBucket: "njg-controle-de-carregamento.firebasestorage.app",
-  messagingSenderId: "753611983634",
-  appId: "1:753611983634:web:71b5793a63599a2b7e01cb",
-  measurementId: "G-JWDW47YE74"
+apiKey: "AIzaSyAd4yEQwsQ2ps8oRv4Ng97F1xu1Sc-mnC8",
+authDomain: "njg-controle-de-carregamento.firebaseapp.com",
+projectId: "njg-controle-de-carregamento",
+storageBucket: "njg-controle-de-carregamento.firebasestorage.app",
+messagingSenderId: "753611983634",
+appId: "1:753611983634:web:71b5793a63599a2b7e01cb",
+measurementId: "G-JWDW47YE74"
 };
 
 const app = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
+const db = getFirestore(app);
+
+let editId=null;
+
+const tabela=document.getElementById("tabela");
 
 async function carregar(){
 
-const querySnapshot = await getDocs(collection(db,"cargas"))
+const snapshot=await getDocs(collection(db,"cargas"));
 
-const tabela=document.getElementById("tabela")
+tabela.innerHTML="";
 
-tabela.innerHTML=""
+let total=0;
+let finalizados=0;
 
-let total=0
+snapshot.forEach((docu)=>{
 
-querySnapshot.forEach((docu)=>{
+const r=docu.data();
 
-const r=docu.data()
-
-const tr=document.createElement("tr")
+const tr=document.createElement("tr");
 
 tr.innerHTML=`
 
-<td>${r.data}</td>
-<td>${r.transportadora}</td>
-<td>${r.rota}</td>
-<td>${r.motorista}</td>
-<td>${r.status}</td>
+<td>${r.data||""}</td>
+<td>${r.transportadora||""}</td>
+<td>${r.rota||""}</td>
+<td>${r.motorista||""}</td>
+<td>${r.status||""}</td>
+
 <td>
-<button onclick="excluir('${docu.id}')">Excluir</button>
+
+<button class="btnEdit" onclick="editar('${docu.id}','${r.data}','${r.transportadora}','${r.rota}','${r.motorista}','${r.status}')">Editar</button>
+
+<button class="btnDel" onclick="excluir('${docu.id}')">Excluir</button>
+
 </td>
 
-`
+`;
 
-tabela.appendChild(tr)
+tabela.appendChild(tr);
 
-total++
+total++;
 
-})
+if(r.status==="FINALIZADO") finalizados++;
 
-document.getElementById("total").innerText=total
+});
+
+document.getElementById("total").innerText=total;
+
+document.getElementById("finalizados").innerText=finalizados;
 
 }
 
-window.novo=async function(){
+window.salvar=async function(){
 
-const data=prompt("Data")
-const transportadora=prompt("Transportadora")
-const rota=prompt("Rota")
-const motorista=prompt("Motorista")
-const status=prompt("Status")
+const data=document.getElementById("data").value;
+const transportadora=document.getElementById("transportadora").value;
+const rota=document.getElementById("rota").value;
+const motorista=document.getElementById("motorista").value;
+const status=document.getElementById("status").value;
 
-await addDoc(collection(db,"cargas"),{
+if(editId){
 
+await updateDoc(doc(db,"cargas",editId),{
 data,
 transportadora,
 rota,
 motorista,
 status
+});
 
-})
+editId=null;
 
-carregar()
+}else{
+
+await addDoc(collection(db,"cargas"),{
+data,
+transportadora,
+rota,
+motorista,
+status
+});
+
+}
+
+limparForm();
+
+carregar();
+
+}
+
+window.editar=function(id,data,t,r,m,s){
+
+editId=id;
+
+document.getElementById("data").value=data;
+document.getElementById("transportadora").value=t;
+document.getElementById("rota").value=r;
+document.getElementById("motorista").value=m;
+document.getElementById("status").value=s;
 
 }
 
 window.excluir=async function(id){
 
-await deleteDoc(doc(db,"cargas",id))
+if(!confirm("Excluir registro?")) return;
 
-carregar()
+await deleteDoc(doc(db,"cargas",id));
+
+carregar();
 
 }
 
-carregar()
+window.limparForm=function(){
+
+editId=null;
+
+document.getElementById("data").value="";
+document.getElementById("transportadora").value="";
+document.getElementById("rota").value="";
+document.getElementById("motorista").value="";
+document.getElementById("status").value="ON";
+
+}
+
+window.filtrar=function(){
+
+const termo=document.getElementById("busca").value.toLowerCase();
+
+const linhas=document.querySelectorAll("#tabela tr");
+
+linhas.forEach(l=>{
+
+l.style.display=l.innerText.toLowerCase().includes(termo)?"":"none";
+
+});
+
+}
+
+carregar();
 
 </script>
 
