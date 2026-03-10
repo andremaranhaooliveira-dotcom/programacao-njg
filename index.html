@@ -850,23 +850,19 @@ function exportarMeusLancamentos() {
 
 // ========== INIT ==========
 function init() {
-  const loaded = loadStorage();
 
-  if (!loaded) {
-    LIVE_DATA = BASE_DATA.map(r => ({
-      ...r,
-      _id: `${r.data}_${r.secao}_${r.transportadora}_${r.motorista}`
-    }));
+  if (!loadStorage()) {
+    LIVE_DATA = [];
   }
-
-  if (localStorage.getItem(LS_COLLAB)) ativarModoColaborador();
 
   populateFilters();
   populateAC();
   populateDateList();
+
   buildDatePills();
   applyFilters();
   updateHdrStats();
+
   setTodayDefault();
 }
 function setTodayDefault() {
