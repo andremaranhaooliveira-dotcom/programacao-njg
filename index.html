@@ -1,41 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
 <meta charset="UTF-8">
-<title>Programação NJG</title>
+<title>Programação de Cargas NJG</title>
 
 <style>
 
 body{
 font-family:Arial;
-background:#f4f6f9;
-margin:40px;
+background:#eef1f5;
+margin:30px;
 }
 
 h1{
-margin-bottom:10px;
+margin-bottom:20px;
 }
 
-.topbar{
-display:flex;
-gap:10px;
-margin-bottom:20px;
+.box{
+background:white;
+padding:15px;
+border-radius:8px;
+margin-bottom:15px;
 }
 
 input,select{
 padding:8px;
+margin:3px;
 }
 
 button{
-padding:8px 14px;
+padding:7px 12px;
+border:none;
+border-radius:5px;
 cursor:pointer;
 }
 
+.add{background:#28a745;color:white;}
+.del{background:#dc3545;color:white;}
+.edit{background:#ffc107;}
+.export{background:#007bff;color:white;}
+
 table{
 width:100%;
-background:white;
 border-collapse:collapse;
+background:white;
 }
 
 th,td{
@@ -44,12 +54,16 @@ padding:8px;
 }
 
 th{
-background:#eee;
+background:#f2f2f2;
 }
 
+.on{background:#d4edda;}
+.off{background:#d1ecf1;}
+.frog{background:#e2d9f3;}
+
 .stats{
-margin:15px 0;
 font-weight:bold;
+margin:10px 0;
 }
 
 </style>
@@ -58,16 +72,17 @@ font-weight:bold;
 
 <body>
 
-<h1>Programação NJG</h1>
+<h1>Programação de Cargas NJG</h1>
 
-<div class="topbar">
+<div class="box">
 
-<input id="data" placeholder="Data">
+<input id="data" type="date">
 
 <select id="secao">
-<option>ON</option>
-<option>OFF</option>
-<option>FROG</option>
+<option value="">Seção</option>
+<option value="ON">ON</option>
+<option value="OFF">OFF</option>
+<option value="FROG">FROG</option>
 </select>
 
 <input id="transportadora" placeholder="Transportadora">
@@ -76,17 +91,21 @@ font-weight:bold;
 
 <input id="motorista" placeholder="Motorista">
 
-<button onclick="adicionar()">Adicionar</button>
+<button class="add" onclick="salvarRegistro()">Adicionar</button>
 
-<button onclick="exportar()">Exportar Excel</button>
+<button class="export" onclick="exportar()">Exportar Excel</button>
 
 </div>
 
-<div>
+<div class="box">
 
-Filtro data:
+Buscar:
 
-<input id="filtroData" onchange="render()">
+<input id="busca" onkeyup="render()" placeholder="motorista / transportadora">
+
+Filtro Data:
+
+<input id="filtroData" type="date" onchange="render()">
 
 </div>
 
@@ -102,7 +121,7 @@ Filtro data:
 <th>Transportadora</th>
 <th>Rota</th>
 <th>Motorista</th>
-<th>Ação</th>
+<th>Ações</th>
 </tr>
 
 </thead>
@@ -111,98 +130,149 @@ Filtro data:
 
 </table>
 
-
 <script>
 
-const LS_KEY="njg_programacao_v2";
+const LS_KEY="njg_cargas_v1"
 
-let dados=[];
-
-
-/* carregar */
+let dados=[]
+let editando=null
 
 function carregar(){
 
-const s=localStorage.getItem(LS_KEY);
+const s=localStorage.getItem(LS_KEY)
 
-if(!s){
-dados=[];
-return;
-}
+if(s){
 
-dados=JSON.parse(s);
+dados=JSON.parse(s)
 
 }
 
-
-/* salvar */
+}
 
 function salvar(){
 
-localStorage.setItem(LS_KEY,JSON.stringify(dados));
+localStorage.setItem(LS_KEY,JSON.stringify(dados))
 
 }
 
+function limpar(){
 
-/* adicionar */
+data.value=""
+secao.value=""
+transportadora.value=""
+rota.value=""
+motorista.value=""
 
-function adicionar(){
+}
+
+function salvarRegistro(){
 
 const registro={
 
-id:Date.now(),
+id:editando ? editando : Date.now(),
 
-data:document.getElementById("data").value,
-secao:document.getElementById("secao").value,
-transportadora:document.getElementById("transportadora").value,
-rota:document.getElementById("rota").value,
-motorista:document.getElementById("motorista").value
-
-};
-
-dados.push(registro);
-
-salvar();
-
-render();
+data:data.value,
+secao:secao.value,
+transportadora:transportadora.value,
+rota:rota.value,
+motorista:motorista.value
 
 }
 
+if(editando){
 
-/* excluir */
+dados=dados.map(r=>r.id===editando ? registro : r)
+editando=null
+
+}else{
+
+dados.push(registro)
+
+}
+
+salvar()
+
+limpar()
+
+render()
+
+}
+
+function editar(id){
+
+const r=dados.find(x=>x.id===id)
+
+data.value=r.data
+secao.value=r.secao
+transportadora.value=r.transportadora
+rota.value=r.rota
+motorista.value=r.motorista
+
+editando=id
+
+}
 
 function excluir(id){
 
-dados=dados.filter(r=>r.id!==id);
+if(!confirm("Deseja excluir este registro?")) return
 
-salvar();
+dados=dados.filter(r=>r.id!==id)
 
-render();
+salvar()
+
+render()
 
 }
-
-
-/* render tabela */
 
 function render(){
 
-const tbody=document.getElementById("tbody");
+const tbody=document.getElementById("tbody")
 
-tbody.innerHTML="";
+tbody.innerHTML=""
 
-const filtro=document.getElementById("filtroData").value;
+let lista=[...dados]
 
-let lista=dados;
+const filtro=document.getElementById("filtroData").value
 
 if(filtro){
 
-lista=dados.filter(r=>r.data===filtro);
+lista=lista.filter(r=>r.data===filtro)
 
 }
 
+const busca=document.getElementById("busca").value.toLowerCase()
+
+if(busca){
+
+lista=lista.filter(r=>
+
+r.motorista.toLowerCase().includes(busca) ||
+
+r.transportadora.toLowerCase().includes(busca)
+
+)
+
+}
+
+let totalON=0
+let totalOFF=0
+let totalFROG=0
+
 lista.forEach(r=>{
 
-const tr=document.createElement("tr");
+if(r.secao==="ON") totalON++
+if(r.secao==="OFF") totalOFF++
+if(r.secao==="FROG") totalFROG++
+
+const tr=document.createElement("tr")
+
+let classe=""
+
+if(r.secao==="ON") classe="on"
+if(r.secao==="OFF") classe="off"
+if(r.secao==="FROG") classe="frog"
+
+tr.className=classe
 
 tr.innerHTML=`
 
@@ -214,111 +284,51 @@ tr.innerHTML=`
 
 <td>
 
-<button onclick="excluir(${r.id})">
+<button class="edit" onclick="editar(${r.id})">Editar</button>
 
-Excluir
-
-</button>
+<button class="del" onclick="excluir(${r.id})">Excluir</button>
 
 </td>
 
-`;
+`
 
-tbody.appendChild(tr);
+tbody.appendChild(tr)
 
-});
+})
 
 document.getElementById("stats").innerText=
-"Total de registros: "+lista.length;
+
+`TOTAL: ${lista.length} | ON: ${totalON} | OFF: ${totalOFF} | FROG: ${totalFROG}`
 
 }
-
-
-/* exportar */
 
 function exportar(){
 
-let csv="Data,Secao,Transportadora,Rota,Motorista\n";
+let csv="Data,Secao,Transportadora,Rota,Motorista\n"
 
 dados.forEach(r=>{
 
-csv+=`${r.data},${r.secao},${r.transportadora},${r.rota},${r.motorista}\n`;
+csv+=`${r.data},${r.secao},${r.transportadora},${r.rota},${r.motorista}\n`
 
-});
+})
 
-const blob=new Blob([csv]);
+const blob=new Blob([csv])
 
-const a=document.createElement("a");
+const a=document.createElement("a")
 
-a.href=URL.createObjectURL(blob);
+a.href=URL.createObjectURL(blob)
 
-a.download="programacao_njg.csv";
+a.download="programacao_njg.csv"
 
-a.click();
-
-}
-
-
-/* iniciar */
-
-carregar();
-
-render();
-<script>
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById("btnLogin").style.display = "none";
-    document.getElementById("btnLogout").style.display = "inline-block";
-  } else {
-    document.getElementById("btnLogin").style.display = "inline-block";
-    document.getElementById("btnLogout").style.display = "none";
-  }
-});
-
-
-// ===== FIRESTORE =====
-const db = firebase.firestore();
-
-function carregarDados(){
-
-LIVE_DATA = [];
-
-db.collection("programacao").get().then((querySnapshot)=>{
-
-querySnapshot.forEach((doc)=>{
-
-LIVE_DATA.push({
-_id: doc.id,
-...doc.data()
-});
-
-});
-
-populateFilters();
-buildDatePills();
-applyFilters();
-updateHdrStats();
-
-});
+a.click()
 
 }
 
-function excluirRegistro(id){
+carregar()
 
-db.collection("programacao").doc(id).delete().then(()=>{
-
-showToast("Registro excluído");
-
-carregarDados();
-
-}).catch((error)=>{
-
-console.error(error);
-
-});
+render()
 
 </script>
-  
+
 </body>
 </html>
